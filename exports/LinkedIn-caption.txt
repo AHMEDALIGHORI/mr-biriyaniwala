@@ -1,0 +1,13 @@
+A little fire. A lot of soul.
+
+A 40-second look at the Mr. Biriyaniwala restaurant website I designed and built:
+
+— scroll-driven story and signature dishes
+— a responsive menu with spice levels, extras and WhatsApp order drafts
+— table requests with a private status link
+— an owner-side desk to confirm or decline requests
+
+HTML · CSS · JavaScript · GSAP · Node 22
+Demo data only. Shot on the real site.
+
+#WebDevelopment #WebDesign #FrontendDevelopment #RestaurantWebsite #GSAP

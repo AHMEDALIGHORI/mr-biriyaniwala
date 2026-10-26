@@ -1,0 +1,429 @@
+You are building a premium, sellable restaurant 
+website template: MR. BIRIYANIWALA, a 
+Hyderabadi dum biryani and charcoal tandoor 
+house. Work as a senior web designer and 
+creative technologist. Build it in phases, and 
+stop and report at each checkpoint rather than 
+silently simplifying anything, above all the scroll
+scrubbed hero.
+1. Concept
+Brand placeholder: Mr. Biriyaniwala (Adelaide). 
+The page is dark, warm and appetising: a near
+black room lit by saffron and copper, with steam 
+and embers everywhere. It opens on a pinned 
+hero that serves eight dishes one after another 
+as you scroll; each dish starts whole and 
+explodes into its ingredients under your thumb. 
+Then it tells the method — the dum: marinate, 
+parboil, layer, seal the handi with dough, lift the 
+lid at the table — and moves through the spices, 
+the menu, the tandoor and the visit. Tone of 
+voice: proud, specific and a little funny 
+("Leftovers are a compliment. Containers are on 
+the house.").
+No text or logos in any image or video. Every 
+word is HTML, so the restaurant can be renamed 
+in the markup without regenerating a single 
+asset. The asset prompts (second section of 
+this pack) follow the same rule.
+2. Stack
+Static site, no build step: index.html, css/
+style.css, js/main.js, media/. GSAP 3.12.5 with 
+ScrollTrigger (cdnjs) and Lenis 1.1.13 (unpkg). 
+Google Fonts: Fraunces (display serif, soft and 
+wonky axes, italics for the emphasised word in 
+every headline), Instrument Sans (body), DM 
+Mono (labels, prices, counters) and Tiro 
+Devanagari Hindi (Hindi accents). No framework 
+and no other libraries. It must run from any 
+static host (npx serve .).
+3. Asset pipeline (build this first)
+Write scripts/process.sh
+ (ffmpeg) that builds 
+media/ from the raw Google Flow downloads in 
+assets/:
+Remove the generator's sparkle mark with 
+delogo (measure the box once on the 1080p 
+renders). Frames-to-Video copies a marked 
+start still's sparkle into the footage beside it, 
+so clear a wider box on the black
+background clips.
+Hero clips (media/hero/&lt;dish&gt;.mp4 and 
+<dish&gt;-m.mp
+4): 1280w CRF 26 and 720w 
+CRF 27, H.264, no audio, faststart, and 
+keyint=2:min
+keyint=1:scenecut=0:bframes=0 — a 
+keyframe every two frames, so seeking from 
+scroll is instant.
+Films (media/v/&lt;name&gt;.mp4 + a first
+frame .jpg poster): 1280w, CRF 26, no audio, 
+faststart. Thirteen of them: the eight dishes 
+plus spices, ingredients, gravy-pour, steam, 
+storefront.
+Stills (media/img/&lt;name&gt;.webp, quality 
+~82): the ten Nano Banana stills.
+Keep media/ under about 50 MB.
+4. The hero: eight dishes, scrubbed by scroll
+A pinned section (ScrollTrigger, pin: true) 
+that is eight bands long; one band = 1.05
+viewport heights on desktop, 0.9 under 
+900px. The current dish is floor(progress × 
+8).
+Each dish is a 6-second Frames-to-Video clip 
+(whole dish → exploded ingredients). Fetch 
+each clip as a blob and play it from an object 
+URL so every seek is local; prime it with 
+play().then(pause) for iOS. The first clip 
+gates the loader; the other seven load one 
+after another behind it. Serve the -m.mp
+files under 900px.
+On the GSAP ticker, lerp a per-clip time 
+toward localProgress × (duration − 0.05
+4 
+) 
+(factor 0.2) and set currentTime only when it 
+moved more than 8ms and the video is not 
+seeking. When a dish arrives, jump its clip 
+straight to the right frame.
+Dish change: the outgoing clip drifts off, 
+shrinks to 0.86 and blurs to 14px; the 
+incoming one rises from 1.18
+ and 16px blur 
+with expo.out. Behind them a giant word 
+(Biriyani, Makhani, Tandoori, Seekh, Tikka, 
+Dal, Naan, Lassi) rolls out and in letter by 
+letter. On the left: category, a two-line line
+masked title with the second line in italic, a 
+description and a price. A 01–08 counter 
+strip, a clickable index of all eight on the 
+right, a progress bar, a rotating ring badge 
+("MR. BIRIYANIWALA ✦ HYDERABADI DUM 
+BIRYANI ✦ ADELAIDE") with a small handi in 
+the middle, and a per-dish --accent colour 
+that tweens across the hero. The arch leans 
+toward the cursor (rotateX/Y).
+Direction-aware: every transition reverses 
+when you scroll up.
+5. Page structure
+1.
+Loader — an SVG handi with three steam 
+curls, a 000–100 counter and a bar, 
+messages "Sealing the handi with dough" → 
+"Slow-cooking on dum" → "Lifting the lid". It 
+waits for the fonts and the first hero clip 
+(capped at 4.5
+s), then splits open top and 
+2.
+3.
+4.
+5.
+6.
+bottom.
+Nav — handi mark + "Mr.Biriyaniwala", links 
+(The Dum, Spices, Menu, Tandoor, Visit), a 
+live "Open now / Closed · opens 11:30
+" pill 
+computed in the restaurant's time zone, "Call 
+to order", and a burger overlay menu. It hides 
+when scrolling down and returns on the way 
+up.
+Hero — section 4.
+Marquee — two rows (Dum Pukht ✦ Saffron 
+✦ Sealed in Copper ✦ ्रयानी …) whose 
+speed and skew react to scroll velocity.
+01 The Dum (manifesto) — a paragraph 
+whose words light up as you scroll, with three 
+inline video "pills" (tandoori, spices, steam) 
+that grow as the words around them light.
+02 Five steps · One lid — a pinned horizontal 
+7.
+8.
+9.
+scroll: "Ninety minutes you will never see us 
+skip.", then Marinate मसाला, Parboil चावल, 
+Layer परत, Seal दम, Lift खुशबू, each card with 
+parallaxed media.
+Mask word — "BIRIYANI" as a text mask over 
+the biryani film; the letters rise in, then the 
+camera zooms through the stem of the first I 
+until the screen is all video. Caption: "Opened 
+at the table. Never before."
+03 In the handi — "Eleven spices. Toasted 
+every morning." A sticky spice film with a 
+01/11
+ counter beside a list of eleven spices; 
+each name scrambles into its Hindi name 
+and back on hover.
+04 The Menu — "Made for the whole table." 
+Eight signature rows with a thumbnail that 
+follows the cursor, then a tabbed full menu 
+(Biryani, Tandoor, Curries, …) rendered from a 
+MENU array at the top of main.js, veg items 
+marked.
+10.
+11.
+12.
+13.
+14.
+05 From the tandoor — an embers 
+background, a canvas of rising sparks (160 
+desktop / 70 mobile), a 480°C counter, "Fire 
+does the talking.", and three tilt cards with 
+films.
+Pour — a sticky gravy-pour film behind 
+stacked kinetic words ("Butter." "Ghee." 
+"Patience." sliding in from alternate sides), 
+then a row of four dish films.
+06 House rules — a quote carousel of four 
+rules with arrows and dots.
+07 Visit — the storefront film behind "Come 
+lift the lid.", counters (90 min on dum, 11 
+spices, 480°C, 12 hrs marinade), the live 
+local time and open status, address, hours, 
+phone, Instagram and three big CTAs (call, 
+menu, directions).
+Footer — a giant BIRIYANIWALA wordmark 
+that rises letter by letter from the centre, and 
+"Ek plate aur?".
+6. Design language
+Ink #0a0706 / #120d0a / #1b1410, cream 
+#f4e9d8, saffron #f0a032 / #ffc35a, copper 
+#c06a3a, chilli #c2361f; hairlines at 12% 
+cream. All tokens and fonts as custom 
+properties at the top of style.css.
+A fixed film-grain overlay, a custom cursor 
+(dot + ring) that shows a word over media 
+(Taste, Fire, Dum, Look), magnetic buttons, 
+link hovers that roll the text.
+Headlines split into lines and rise in through 
+masks; labels are numbered (01–07) DM 
+Mono eyebrows; Devanagari appears as a 
+quiet second voice.
+Films play only near the viewport 
+(IntersectionObserver) and pause outside it.
+7. Quality bar
+The hero scrub is smooth in both directions 
+with no black frames: no clip ever shows 
+before its first frame has decoded.
+Every business detail (time zone, opening 
+hours, phone, address, dishes and prices) 
+lives in the SITE and MENU objects at the 
+top of main.js or as plain text in index.html.
+prefers-reduced-motion: no smooth scroll, 
+no scrub tweens, content visible. 
+Breakpoints at 1100, 900 and 520px; touch 
+devices lose the custom cursor.
+No console errors; no layout shift while 
+media loads.
+8. Template packaging
+One folder: index.html, css/, js/, media/, 
+scripts/process.sh
+, docs/ASSET
+PROMPTS.md
+, and assets/ for the raw 
+downloads (not shipped).
+A short README: how to run it, where to 
+change the name, hours, phone and menu, 
+and how to swap in your own renders (drop 
+them into assets/ and run scripts/
+process.sh
+).
+Working agreement
+Build the media pipeline and the hero first and 
+show me all eight dishes scrubbing before the 
+rest of the page. Stop and ask before cutting a 
+section, swapping the blob-loaded clips for 
+streamed video or lowering the keyframe density.
+=== Google Flow Asset Generation Prompts ===
+MR. BIRIYANIWALA — Google 
+Flow Asset Prompts
+Every image and film on the site, in generation 
+order: ten stills with Nano Banana, then thirteen 
+films with Veo 3 — eight Frames-to-Video clips 
+that the hero scrubs through, and five loops. No 
+text, logos or watermarks in any asset: every 
+word on the page is HTML.
+Global style block (paste at the end of 
+every prompt)
+Photorealistic premium food commercial, shot 
+on ARRI Alexa, 100mm macro lens, warm golden 
+key light from the left with soft rim light, shallow 
+depth of field, rich saffron, copper, charcoal and 
+cream tones, seamless solid near-black 
+background (#0A0706), clean negative space, no 
+text, no logos, no watermarks, 16:9, 4K.
+Every asset shares the same near-black so it 
+melts into the page. The storefront film is the 
+one exception: it is a night street, and the lens 
+and light still apply.
+Flow settings
+Stills: Nano Banana (Imagen), 16:9, 2K.
+Hero films 
+⚙️
+: Veo 3 Frames-to-Video, first 
+frame = the dish still, 6–8s, 16:9, 1080p, no 
+audio.
+Loops: Veo 3 Text-to-Video, 6–8s, 16:9, 
+1080p, no audio.
+ = scrubbed by scroll. Locked-off camera, no 
+⚙️
+cuts and constant lighting, or they jitter when 
+scrubbed. The dish starts whole and centred and 
+ends exploded, every piece inside the frame.
+A visible sparkle in a start still gets copied into 
+the film. Export without the mark, or clean the 
+stills before using them as first frames; scripts/
+process.sh
+ removes the mark from the films.
+A. Stills (Nano Banana)
+The first eight are the hero's dishes; each is also 
+the first frame of its film in section B.--- S01 · sealed handi → img/handi-dum.webp, 
+first frame of F01
+A hammered copper biryani handi, its lid sealed 
+shut with a thick rope of golden-baked atta 
+dough domed over the top, a few wisps of steam 
+escaping from the seal, centred, front view at 
+eye level, floating in a dark void.--- S02 · butter chicken → img/butter
+chicken.webp, first frame of F02
+Butter chicken in a hammered copper kadai with 
+brass handles: charred chicken tikka pieces in a 
+glossy orange tomato-makhani gravy, a swirl of 
+fresh cream, a melting cube of white butter and 
+chopped coriander, centred, 30° above eye level.--- S03 · tandoori chicken → img/tandoori.webp, 
+first frame of F03
+A single tandoori chicken leg, deep red and 
+charred at the edges, on a matte black plate over 
+thin onion rings with a lemon wedge, glowing 
+embers, sparks and smoke rising behind it, 3/4
+angle.--- S04 · lamb seekh kebab → img/seekh.webp, 
+first frame of F04
+Two lamb seekh kebabs on long iron skewers 
+resting diagonally on a slate board, grill marks 
+and a sheen of ghee, a few red onion rings and a 
+small mound of green mint chutney beside 
+them, steam rising.--- S05 · paneer tikka → img/paneer.webp, first 
+frame of F05
+A wooden skewer of paneer tikka on a round 
+matte black plate: charred orange paneer cubes 
+alternating with red onion, green capsicum and 
+tomato, a lemon wedge and fresh mint leaves, 
+steam curling up.--- S06 · dal makhani → img/dal.webp, first frame 
+of F06
+Dal makhani in a small black clay pot, glossy 
+dark lentils with a spiral of cream, a cube of 
+melting butter and a coriander sprig on top, 
+gentle steam, centred, slightly above eye level.--- S07 · garlic butter naan → img/naan.webp, 
+first frame of F07
+A teardrop-shaped garlic butter naan on a dark 
+round plate, leopard-spotted char blisters, 
+chopped garlic and coriander, a pool of melting 
+butter in the middle, steam rising, 3/4
+ angle.--- S08 · mango lassi → img/lassi.webp, first 
+frame of F08
+A tall clear glass of thick mango lassi, a cap of 
+whipped cream sprinkled with crushed pistachio 
+and saffron strands, light condensation on the 
+glass, centred, front view.--- S09 · the feast → img/feast.webp (menu row, 
+share image)
+A hero spread on a slate board: an open 
+hammered copper handi of saffron dum biryani 
+with its lid leaning against it and steam pouring 
+out, a tandoori chicken leg, three seekh kebabs 
+on skewers, a folded garlic naan and a small 
+glass of mango lassi, arranged left to right with 
+empty space above.--- S10 · embers → img/embers.webp (tandoor 
+background)
+Extreme close-up of lump charcoal in a tandoor, 
+glowing orange embers between black coals 
+and fine white ash, full frame, top-down, no 
+background visible.
+B. Hero films 
+Video)
+⚙️
+ (Veo 3 · Frames-to
+Add to every prompt: Locked-off static camera, 
+the dish stays centred, continuous with no cuts 
+and no camera movement, constant lighting, 
+slow weightless motion, every piece stays inside 
+the frame.--- F01 · biryani-rise 
+⚙️
+ · first frame S01
+The dough seal cracks and the copper lid lifts 
+away, then the biryani rises out of the handi in a 
+slow column: saffron and white basmati grains, 
+bone-in chicken pieces, crisp fried onions, mint 
+leaves, green cardamom, cloves and star anise, 
+all floating upward and hanging in mid-air above 
+the open handi.--- F02 · butter-chicken 
+⚙️
+ · first frame S02
+A crown of makhani gravy splashes up out of the 
+kadai, then chicken tikka pieces, cherry 
+tomatoes, dried red chillies, cashews and cubes 
+of butter float outward in a balanced ring around 
+the splash.--- F03 · tandoori 
+ · first frame S03
+⚙️
+A burst of red Kashmiri chilli powder blooms 
+around the chicken leg, then onion rings, lemon 
+wedges, coriander leaves and green chillies lift 
+off the plate and orbit slowly around it, embers 
+drifting.--- F04 · seekh 
+⚙️
+ · first frame S04
+A single drop of ghee falls onto the kebab and 
+sizzles, then mint leaves, green chillies, garlic 
+cloves, onion rings and a splash of green 
+chutney lift off the slate and float around the 
+skewers.--- F05 · paneer 
+⚙️
+ · first frame S05
+The paneer cubes, onion, capsicum and tomato 
+slide off the skewer and float apart above the 
+plate, a ribbon of orange tikka marinade swirling 
+between them, mint and lemon drifting.--- F06 · dal 
+ · first frame S06
+⚙️
+Cream splashes up from the pot in a crown, then 
+black lentils, red kidney beans, butter cubes, red 
+chillies and coriander fly outward and hang in 
+the air above the clay pot.--- F07 · naan 
+⚙️
+ · first frame S07
+Melted butter drips over the naan, then the naan 
+tears slowly in two in mid-air, garlic cloves, 
+chopped garlic, sesame and coriander floating 
+out from the tear.--- F08 · lassi 
+⚙️
+ · first frame S08
+A splash crown of mango lassi leaps from the 
+glass, mango cubes, ice cubes, cardamom pods, 
+pistachio and saffron strands floating out 
+around it, droplets frozen in the light.
+C. Loops (Veo 3 · Text-to-Video)
+--- F09 · spices
+Whole biryani spices float slowly through the 
+light: green and black cardamom, cloves, 
+cinnamon bark, star anise, bay leaves, mace and 
+saffron strands, drifting and turning with thin 
+wisps of smoke. Locked-off camera.--- F10 · ingredients
+Slow motion: aged basmati grains, crisp fried 
+onions, mint and coriander leaves, slit green 
+chillies and cashews fall gently through the 
+frame from above, tumbling and catching the 
+rim light.--- F11 · gravy-pour
+Slow motion: two streams pour from above, one 
+of golden ghee and one of thick orange makhani 
+gravy, twist around each other and land in a 
+splash crown with droplets flying. Locked-off 
+camera.--- F12 · steam
+Soft wisps of white steam rise slowly from the 
+bottom of frame and curl through a warm light 
+beam, minimal, seamless loop, subtle.--- F13 · storefront
+Night, a corner restaurant on a wet city street: 
+tall glass windows glowing warm amber, the 
+orange flicker of a tandoor fire visible inside, a 
+few silhouetted people chatting outside, 
+reflections on the wet pavement, light haze. Very 
+slow push-in. No readable signage or text.

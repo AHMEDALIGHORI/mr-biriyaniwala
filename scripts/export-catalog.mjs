@@ -1,0 +1,13 @@
+import fs from 'node:fs/promises';
+import vm from 'node:vm';
+const root=new URL('../',import.meta.url);
+const source=await fs.readFile(new URL('js/main.js',root),'utf8');
+const seed=vm.runInNewContext(source.split('(() => {')[0]+'\n({site:SITE,menu:MENU,signatures:SIGNATURES})',{window:{}});
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+seed.site={...seed.site,whatsapp:'923368933584',publicUrl:'',bookingUrl:'',reservationLeadMinutes:30};
+seed.menu=seed.menu.map(item=>({...item,id:item.id||slug(item.name),available:true,special:false,specialText:'',salePrice:null,spiceOptions:['Biriyani','Tandoor','Curries'].includes(item.group),extras:['Biriyani','Tandoor','Curries'].includes(item.group)?['raita','naan']:[]}));
+seed.extras=[{id:'raita',name:'Extra raita',price:2.50,available:true},{id:'naan',name:'Add butter naan',price:4.50,available:true}];
+seed.revision=1;
+await fs.mkdir(new URL('data/',root),{recursive:true});
+await fs.writeFile(new URL('data/catalog.json',root),JSON.stringify(seed,null,2)+'\n');
+console.log('Default catalog exported. Existing server menu changes are not overwritten.');

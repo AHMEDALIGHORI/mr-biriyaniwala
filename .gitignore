@@ -1,0 +1,12 @@
+assets/
+.tools/
+.qa/
+node_modules/
+.runtime/
+.env
+.showcase/
+exports/archive/
+docs/video/
+Mr-Biriyaniwala-template.zip
+.DS_Store
+Thumbs.db
